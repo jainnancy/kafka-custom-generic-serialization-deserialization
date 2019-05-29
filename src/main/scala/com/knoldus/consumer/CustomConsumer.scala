@@ -13,30 +13,14 @@ import scala.collection.JavaConverters._
 class CustomConsumer {
 
   val log = Logger.getLogger(this.getClass)
-  val props = new Properties()
-  val props1 = new Properties()
   val config = ConfigFactory.load()
 
-  props.put("bootstrap.servers", bootstrapServer)
-  props.put("key.deserializer", keyDeserializer)
-  props.put("value.deserializer", valueDeserializer)
-  props.put("group.id", group_id_1)
-  props.put("enable.auto.commit", "false")
-  props.put("auto.offset.reset", offset)
-
-
-  props1.put("bootstrap.servers", bootstrapServer)
-  props1.put("key.deserializer", keyDeserializer)
-  props1.put("value.deserializer", valueDeserializer)
-  props1.put("group.id", group_id_2)
-  props1.put("enable.auto.commit", "false")
-  props1.put("auto.offset.reset", offset)
-
-  val studentConsumer = new KafkaConsumer[String, Student](props)
-  val teacherConsumer = new KafkaConsumer[String, Teacher](props1)
+  private val studentConsumer = new KafkaConsumer[String, Student](getConsumerProperties(group_id_1))
+  private val teacherConsumer = new KafkaConsumer[String, Teacher](getConsumerProperties(group_id_2))
 
   /**
     * This method will read data from given topic.
+    *
     * @param studentTopic String
     * @param teacherTopic String
     */
@@ -53,6 +37,19 @@ class CustomConsumer {
         log.info(s"received message in Teacher consumer-\n key: ${teacherRecord.key} value: ${teacherRecord.value} \n")
       }
     }
+  }
+
+  private def getConsumerProperties(groupID: String): Properties = {
+    val props = new Properties()
+
+    props.put("bootstrap.servers", bootstrapServer)
+    props.put("key.deserializer", keyDeserializer)
+    props.put("value.deserializer", valueDeserializer)
+    props.put("group.id", groupID)
+    props.put("enable.auto.commit", "false")
+    props.put("auto.offset.reset", offset)
+
+    props
   }
 
 }
